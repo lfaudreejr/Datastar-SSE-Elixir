@@ -6,7 +6,7 @@ defmodule DataStar do
   defmodule ServerSentEventGenerator do
     @default_retry_duration 1000
 
-    def new(conn, _opts) do
+    def new_sse(conn) do
       conn
       |> Plug.Conn.put_resp_header("cache-control", "no-cache")
       |> Plug.Conn.put_resp_header("content-type", "text/event-stream")
@@ -22,7 +22,7 @@ defmodule DataStar do
       retry_duration = Keyword.get(opts, :retry_duration)
 
       data_lines = []
-      data_lines = if mode != "outer", do: ["mode #{mode}" | data_lines], else: data_lines
+      data_lines = if mode && mode != "outer", do: ["mode #{mode}" | data_lines], else: data_lines
       data_lines = if selector, do: ["selector #{selector}" | data_lines], else: data_lines
 
       data_lines =
@@ -60,7 +60,20 @@ defmodule DataStar do
       data_lines = []
       data_lines = if only_if_missing, do: ["onlyIfMissing true" | data_lines], else: data_lines
 
-      signal_lines = String.split(signals, "\n", trim: true)
+      signal_lines =
+        if is_bitstring(signals) do
+          String.split(signals, "\n", trim: true)
+        else
+          case Jason.encode(signals) do
+            {:ok, json} ->
+              String.split(json, "\n", trim: true)
+
+            {:error, _} ->
+              []
+          end
+        end
+
+      # signal_lines = String.split(signals, "\n", trim: true)
 
       data_lines =
         Enum.reduce(signal_lines, data_lines, fn line, acc ->

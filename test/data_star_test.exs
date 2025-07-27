@@ -6,7 +6,7 @@ defmodule DataStarTest do
 
   test "starts sse conn" do
     conn = conn(:get, "/sse")
-    conn = DataStar.ServerSentEventGenerator.new(conn, [])
+    conn = DataStar.ServerSentEventGenerator.new_sse(conn)
 
     assert conn.status == 200
 
@@ -21,7 +21,7 @@ defmodule DataStarTest do
 
   test "patch_elements minimal" do
     conn = conn(:get, "/sse")
-    conn = DataStar.ServerSentEventGenerator.new(conn, [])
+    conn = DataStar.ServerSentEventGenerator.new_sse(conn)
 
     conn =
       DataStar.ServerSentEventGenerator.patch_elements(
@@ -38,7 +38,7 @@ defmodule DataStarTest do
 
   test "patch_elements ID based" do
     conn = conn(:get, "/sse")
-    conn = DataStar.ServerSentEventGenerator.new(conn, [])
+    conn = DataStar.ServerSentEventGenerator.new_sse(conn)
 
     conn =
       DataStar.ServerSentEventGenerator.patch_elements(
@@ -56,7 +56,7 @@ defmodule DataStarTest do
 
   test "patch_elements insert by selector" do
     conn = conn(:get, "/sse")
-    conn = DataStar.ServerSentEventGenerator.new(conn, [])
+    conn = DataStar.ServerSentEventGenerator.new_sse(conn)
 
     conn =
       DataStar.ServerSentEventGenerator.patch_elements(
@@ -74,7 +74,7 @@ defmodule DataStarTest do
 
   test "patch_elements remove selector" do
     conn = conn(:get, "/sse")
-    conn = DataStar.ServerSentEventGenerator.new(conn, [])
+    conn = DataStar.ServerSentEventGenerator.new_sse(conn)
 
     conn =
       DataStar.ServerSentEventGenerator.patch_elements(
@@ -89,12 +89,10 @@ defmodule DataStarTest do
   end
 
   test "patch_elements remove without selector" do
-    conn = conn(:get, "/sse")
-    conn = DataStar.ServerSentEventGenerator.new(conn, [])
-
     conn =
-      DataStar.ServerSentEventGenerator.patch_elements(
-        conn,
+      conn(:get, "/sse")
+      |> DataStar.ServerSentEventGenerator.new_sse()
+      |> DataStar.ServerSentEventGenerator.patch_elements(
         """
         <div id="first"></div><div id="second"></div>
         """,
@@ -106,14 +104,12 @@ defmodule DataStarTest do
   end
 
   test "patch_signals" do
-    conn = conn(:get, "/sse")
-    conn = DataStar.ServerSentEventGenerator.new(conn, [])
-
     {:ok, json} = Jason.encode(%{"newSignal" => "test"})
 
     conn =
-      DataStar.ServerSentEventGenerator.patch_signals(
-        conn,
+      conn(:get, "/sse")
+      |> DataStar.ServerSentEventGenerator.new_sse()
+      |> DataStar.ServerSentEventGenerator.patch_signals(
         json,
         []
       )
@@ -123,12 +119,10 @@ defmodule DataStarTest do
   end
 
   test "execute_script minimal" do
-    conn = conn(:get, "/sse")
-    conn = DataStar.ServerSentEventGenerator.new(conn, [])
-
     conn =
-      DataStar.ServerSentEventGenerator.execute_script(
-        conn,
+      conn(:get, "/sse")
+      |> DataStar.ServerSentEventGenerator.new_sse()
+      |> DataStar.ServerSentEventGenerator.execute_script(
         "console.log('Here')",
         []
       )
@@ -138,12 +132,10 @@ defmodule DataStarTest do
   end
 
   test "execute_script full" do
-    conn = conn(:get, "/sse")
-    conn = DataStar.ServerSentEventGenerator.new(conn, [])
-
     conn =
-      DataStar.ServerSentEventGenerator.execute_script(
-        conn,
+      conn(:get, "/sse")
+      |> DataStar.ServerSentEventGenerator.new_sse()
+      |> DataStar.ServerSentEventGenerator.execute_script(
         "console.log('Here')",
         event_id: "123",
         retry_duration: 2000,
