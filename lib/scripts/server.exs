@@ -60,8 +60,6 @@ defmodule Router do
     conn = DataStar.ServerSentEventGenerator.new_sse(conn)
     {:ok, conn, signals} = DataStar.ServerSentEventGenerator.read_signals(conn, nil)
 
-    IO.inspect(signals, label: "SIGNALS")
-
     Enum.reduce(signals["events"], conn, fn event, conn ->
       case event["type"] do
         "executeScript" ->
