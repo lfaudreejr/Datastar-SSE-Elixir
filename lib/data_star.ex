@@ -4,8 +4,16 @@ defmodule DataStar do
   """
 
   defmodule ServerSentEventGenerator do
+    @moduledoc """
+    The `ServerSentEventGenerator` module.
+    """
     @default_retry_duration 1000
 
+    @doc """
+    Setups of connection to response with Server-Sent Events
+
+    returns Plug.Conn
+    """
     def new_sse(conn) do
       conn
       |> Plug.Conn.put_resp_header("cache-control", "no-cache")
@@ -14,6 +22,24 @@ defmodule DataStar do
       |> Plug.Conn.send_chunked(200)
     end
 
+    @doc """
+    Sends a DataStar patch elements event
+
+    conn - Plug.Conn
+    elements - String
+    opts - Optional Datastar patch element event options
+
+    returns Plug.Conn
+
+    ## Examples
+      DataStar.ServerSentEventGenerator.patch_elements(
+        conn,
+        "<div id="welcome">Hello World!</div>",
+        mode: "outer",
+        use_view_transition: false,
+        event_id: 123
+      )
+    """
     def patch_elements(conn, elements, opts \\ []) do
       selector = Keyword.get(opts, :selector)
       mode = Keyword.get(opts, :mode, "outer")
@@ -52,6 +78,23 @@ defmodule DataStar do
       send(conn, "datastar-patch-elements", data_lines, send_opts)
     end
 
+    @doc """
+    Sends a DataStar patch signals event
+
+    conn - Plug.Conn
+    signals - String
+    opts - Optional Datastar patch element event options
+
+    returns Plug.Conn
+
+    ## Examples
+      DataStar.ServerSentEventGenerator.patch_signals(
+        conn,
+        Jason.encode(%{"signal" => "Hello World"}),
+        only_if_missing: true,
+        event_id: 123
+      )
+    """
     def patch_signals(conn, signals, opts \\ []) do
       only_if_missing = Keyword.get(opts, :only_if_missing, false)
       event_id = Keyword.get(opts, :event_id)
@@ -73,8 +116,6 @@ defmodule DataStar do
           end
         end
 
-      # signal_lines = String.split(signals, "\n", trim: true)
-
       data_lines =
         Enum.reduce(signal_lines, data_lines, fn line, acc ->
           ["signals #{line}" | acc]
@@ -93,6 +134,23 @@ defmodule DataStar do
       send(conn, "datastar-patch-signals", data_lines, send_opts)
     end
 
+    @doc """
+    Sends a DataStar execute script event
+
+    conn - Plug.Conn
+    script - String
+    opts - Optional Datastar execute script event options
+
+    returns Plug.Conn
+
+    ## Examples
+      DataStar.ServerSentEventGenerator.execute_script(
+        conn,
+        "console.log('Hello World!')",
+        auto_remove: true,
+        event_id: 123
+      )
+    """
     def execute_script(conn, script, opts \\ []) do
       auto_remove = Keyword.get(opts, :auto_remove, true)
       attributes = Keyword.get(opts, :attributes, [])
@@ -123,7 +181,19 @@ defmodule DataStar do
       send(conn, "datastar-patch-elements", data_lines, send_opts)
     end
 
-    def read_signals(conn, _struct) do
+    @doc """
+    Parses DataStar signals from Plug.Conn as JSON
+
+    conn - Plug.Conn
+    script - String
+    opts - Optional Datastar execute script event options
+
+    returns {:ok, conn, signals} or {:error, reason}
+
+    ## Examples
+      DataStar.ServerSentEventGenerator.read_signals(conn)
+    """
+    def read_signals(conn) do
       case conn.method do
         "GET" ->
           case conn.query_params do

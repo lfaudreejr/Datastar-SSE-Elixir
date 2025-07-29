@@ -153,7 +153,7 @@ defmodule DataStarTest do
       conn(:post, "/sse", json) |> Plug.Conn.put_req_header("content-type", "application/json")
 
     {:ok, _, signals} =
-      DataStar.ServerSentEventGenerator.read_signals(conn, nil)
+      DataStar.ServerSentEventGenerator.read_signals(conn)
 
     assert signals == %{"signal" => "test"}
   end
@@ -163,7 +163,7 @@ defmodule DataStarTest do
     conn = json |> json_conn() |> parse()
 
     {:ok, _, signals} =
-      DataStar.ServerSentEventGenerator.read_signals(conn, nil)
+      DataStar.ServerSentEventGenerator.read_signals(conn)
 
     assert signals == %{"signal" => "test"}
   end
@@ -173,7 +173,7 @@ defmodule DataStarTest do
     conn = conn(:get, "/sse?datastar=#{json}")
 
     {:ok, _, signals} =
-      DataStar.ServerSentEventGenerator.read_signals(conn, nil)
+      DataStar.ServerSentEventGenerator.read_signals(conn)
 
     assert signals == %{"signal" => "test"}
   end
@@ -183,7 +183,7 @@ defmodule DataStarTest do
     conn = conn(:get, "/sse?datastar=#{json}") |> parse()
 
     {:ok, _, signals} =
-      DataStar.ServerSentEventGenerator.read_signals(conn, nil)
+      DataStar.ServerSentEventGenerator.read_signals(conn)
 
     assert signals == %{"signal" => "test"}
   end

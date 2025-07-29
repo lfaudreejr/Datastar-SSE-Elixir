@@ -24,7 +24,7 @@ defmodule Router do
 
   post "/test" do
     conn = DataStar.ServerSentEventGenerator.new_sse(conn)
-    {:ok, conn, signals} = DataStar.ServerSentEventGenerator.read_signals(conn, nil)
+    {:ok, conn, signals} = DataStar.ServerSentEventGenerator.read_signals(conn)
 
     Enum.reduce(signals["events"], conn, fn event, conn ->
       case event["type"] do
@@ -58,7 +58,7 @@ defmodule Router do
 
   get "/test" do
     conn = DataStar.ServerSentEventGenerator.new_sse(conn)
-    {:ok, conn, signals} = DataStar.ServerSentEventGenerator.read_signals(conn, nil)
+    {:ok, conn, signals} = DataStar.ServerSentEventGenerator.read_signals(conn)
 
     Enum.reduce(signals["events"], conn, fn event, conn ->
       case event["type"] do
