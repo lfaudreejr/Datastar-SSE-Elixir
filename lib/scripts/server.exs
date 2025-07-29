@@ -15,7 +15,7 @@ Mix.install([:plug, :bandit, :jason])
 Code.require_file("../data_star.ex", __DIR__)
 
 defmodule Router do
-  require DataStar
+  require DataStarSSE
   use Plug.Router
 
   plug(Plug.Logger)
@@ -23,20 +23,20 @@ defmodule Router do
   plug(:dispatch)
 
   post "/test" do
-    conn = DataStar.ServerSentEventGenerator.new_sse(conn)
-    {:ok, conn, signals} = DataStar.ServerSentEventGenerator.read_signals(conn)
+    conn = DataStarSSE.ServerSentEventGenerator.new_sse(conn)
+    {:ok, conn, signals} = DataStarSSE.ServerSentEventGenerator.read_signals(conn)
 
     Enum.reduce(signals["events"], conn, fn event, conn ->
       case event["type"] do
         "executeScript" ->
-          DataStar.ServerSentEventGenerator.execute_script(conn, event["script"],
+          DataStarSSE.ServerSentEventGenerator.execute_script(conn, event["script"],
             event_id: event["eventId"],
             retry_duration: event["retryDuration"],
             attributes: [type: "text/javascript", blocking: "false"]
           )
 
         "patchElements" ->
-          DataStar.ServerSentEventGenerator.patch_elements(conn, event["elements"],
+          DataStarSSE.ServerSentEventGenerator.patch_elements(conn, event["elements"],
             event_id: event["eventId"],
             retry_duration: event["retryDuration"],
             selector: event["selector"],
@@ -45,7 +45,7 @@ defmodule Router do
           )
 
         "patchSignals" ->
-          DataStar.ServerSentEventGenerator.patch_signals(
+          DataStarSSE.ServerSentEventGenerator.patch_signals(
             conn,
             event["signals"] || event["signals-raw"],
             event_id: event["eventId"],
@@ -57,20 +57,20 @@ defmodule Router do
   end
 
   get "/test" do
-    conn = DataStar.ServerSentEventGenerator.new_sse(conn)
-    {:ok, conn, signals} = DataStar.ServerSentEventGenerator.read_signals(conn)
+    conn = DataStarSSE.ServerSentEventGenerator.new_sse(conn)
+    {:ok, conn, signals} = DataStarSSE.ServerSentEventGenerator.read_signals(conn)
 
     Enum.reduce(signals["events"], conn, fn event, conn ->
       case event["type"] do
         "executeScript" ->
-          DataStar.ServerSentEventGenerator.execute_script(conn, event["script"],
+          DataStarSSE.ServerSentEventGenerator.execute_script(conn, event["script"],
             event_id: event["eventId"],
             retry_duration: event["retryDuration"],
             attributes: [type: "text/javascript", blocking: "false"]
           )
 
         "patchElements" ->
-          DataStar.ServerSentEventGenerator.patch_elements(conn, event["elements"],
+          DataStarSSE.ServerSentEventGenerator.patch_elements(conn, event["elements"],
             event_id: event["eventId"],
             retry_duration: event["retryDuration"],
             selector: event["selector"],
@@ -79,7 +79,7 @@ defmodule Router do
           )
 
         "patchSignals" ->
-          DataStar.ServerSentEventGenerator.patch_signals(
+          DataStarSSE.ServerSentEventGenerator.patch_signals(
             conn,
             event["signals"] || event["signals-raw"],
             event_id: event["eventId"],

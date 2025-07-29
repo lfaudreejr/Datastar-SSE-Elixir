@@ -1,6 +1,6 @@
-defmodule DataStar do
+defmodule DataStarSSE do
   @moduledoc """
-  Documentation for `DataStar`.
+  Documentation for `DataStarSSE`.
   """
 
   defmodule ServerSentEventGenerator do
@@ -32,7 +32,7 @@ defmodule DataStar do
     returns Plug.Conn
 
     ## Examples
-      DataStar.ServerSentEventGenerator.patch_elements(
+      DataStarSSE.ServerSentEventGenerator.patch_elements(
         conn,
         "<div id="welcome">Hello World!</div>",
         mode: "outer",
@@ -88,7 +88,7 @@ defmodule DataStar do
     returns Plug.Conn
 
     ## Examples
-      DataStar.ServerSentEventGenerator.patch_signals(
+      DataStarSSE.ServerSentEventGenerator.patch_signals(
         conn,
         Jason.encode(%{"signal" => "Hello World"}),
         only_if_missing: true,
@@ -144,7 +144,7 @@ defmodule DataStar do
     returns Plug.Conn
 
     ## Examples
-      DataStar.ServerSentEventGenerator.execute_script(
+      DataStarSSE.ServerSentEventGenerator.execute_script(
         conn,
         "console.log('Hello World!')",
         auto_remove: true,
@@ -191,7 +191,7 @@ defmodule DataStar do
     returns {:ok, conn, signals} or {:error, reason}
 
     ## Examples
-      DataStar.ServerSentEventGenerator.read_signals(conn)
+      DataStarSSE.ServerSentEventGenerator.read_signals(conn)
     """
     def read_signals(conn) do
       case conn.method do

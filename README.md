@@ -1,16 +1,16 @@
-# DataStar
+# DataStarSSE
 
-Elixir SSE Helpers for [Datastar](https://data-star.dev) - A framework for building reactive web applications using Server-Sent Events and hypermedia.
+Elixir SSE Helpers for [DataStar](https://data-star.dev) - A framework for building reactive web applications using Server-Sent Events and hypermedia.
 
 ## Installation
 
 If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `datastar` to your list of dependencies in `mix.exs`:
+by adding `datastar_sse` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
   [
-    {:datastar, "~> 0.1.0"}
+    {:datastar_sse, "~> 0.1.0"}
   ]
 end
 ```
@@ -20,16 +20,16 @@ end
 ```elixir
   def get("/sse") do
     conn
-      |> DataStar.ServerSentEventGenerator.new_sse()
-      |> DataStar.ServerSentEventGenerator.patch_elements(
+      |> DataStarSSE.ServerSentEventGenerator.new_sse()
+      |> DataStarSSE.ServerSentEventGenerator.patch_elements(
           """
           <div id="question">What do you put in a toaster?</div>
           """,
         )
-      |> DataStar.ServerSentEventGenerator.patch_signals(
+      |> DataStarSSE.ServerSentEventGenerator.patch_signals(
           %{"response" => "", "answer" => "bread"},
         )
-      |> DataStar.ServerSentEventGenerator.execute_script("console.log(123)")
+      |> DataStarSSE.ServerSentEventGenerator.execute_script("console.log(123)")
   end
 ```
 
