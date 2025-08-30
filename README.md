@@ -33,6 +33,18 @@ end
   end
 ```
 
+If using Phoenix, add to config.exs
+```elixir
+  # Accept event-stream requests
+  config :mime, :types, %{
+    "text/event-stream" => ["sse"]
+  }
+```
+and to router.ex
+```elixir
+  plug :accepts, ["sse"]
+```
+
 Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
 and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
 be found at <https://hexdocs.pm/datastar>.
