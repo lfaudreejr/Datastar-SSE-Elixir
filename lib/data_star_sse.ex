@@ -11,7 +11,7 @@ defmodule DataStarSSE do
   @doc """
   Sets up a connection to respond with Server-Sent Events.
 
-  returns Plug.Conn
+  Returns `Plug.Conn.t()`.
   """
   @spec new_sse(Plug.Conn.t()) :: Plug.Conn.t()
   def new_sse(conn) do
@@ -25,20 +25,23 @@ defmodule DataStarSSE do
   @doc """
   Sends a DataStar patch elements event.
 
-  conn - Plug.Conn
-  elements - String
-  opts - Optional Datastar patch element event options
+  - `conn` - `Plug.Conn`
+  - `elements` - HTML string to patch into the DOM, or `nil` when using `mode: "remove"` with a selector
+  - `opts` - keyword options: `:selector`, `:mode` (default `"outer"`), `:use_view_transition`, `:event_id`, `:retry_duration`
 
-  returns {:ok, Plug.Conn} | {:error, :closed | :enotconn}
+  Returns `{:ok, Plug.Conn.t()}` or `{:error, :closed | :enotconn}`.
 
   ## Examples
-    DataStarSSE.patch_elements(
-      conn,
-      ~s(<div id="welcome">Hello World!</div>),
-      mode: "outer",
-      use_view_transition: false,
-      event_id: 123
-    )
+
+  ```elixir
+  {:ok, conn} = DataStarSSE.patch_elements(
+    conn,
+    ~s(<div id="welcome">Hello World!</div>),
+    mode: "outer",
+    use_view_transition: false,
+    event_id: 123
+  )
+  ```
   """
   @spec patch_elements(Plug.Conn.t(), String.t() | nil, keyword()) ::
           {:ok, Plug.Conn.t()} | {:error, :closed | :enotconn}
@@ -83,20 +86,18 @@ defmodule DataStarSSE do
   @doc """
   Sends a DataStar patch signals event.
 
-  conn - Plug.Conn
-  signals - String (pre-encoded JSON)
-  opts - Optional Datastar patch signals event options
+  - `conn` - `Plug.Conn`
+  - `signals` - pre-encoded JSON string (use `Jason.encode!/1` before calling)
+  - `opts` - keyword options: `:only_if_missing`, `:event_id`, `:retry_duration`
 
-  returns {:ok, Plug.Conn} | {:error, :closed | :enotconn}
+  Returns `{:ok, Plug.Conn.t()}` or `{:error, :closed | :enotconn}`.
 
   ## Examples
-    {:ok, json} = Jason.encode(%{"signal" => "Hello World"})
-    DataStarSSE.patch_signals(
-      conn,
-      json,
-      only_if_missing: true,
-      event_id: 123
-    )
+
+  ```elixir
+  {:ok, json} = Jason.encode(%{"signal" => "Hello World"})
+  {:ok, conn} = DataStarSSE.patch_signals(conn, json, only_if_missing: true, event_id: 123)
+  ```
   """
   @spec patch_signals(Plug.Conn.t(), String.t(), keyword()) ::
           {:ok, Plug.Conn.t()} | {:error, :closed | :enotconn}
@@ -131,19 +132,20 @@ defmodule DataStarSSE do
   @doc """
   Sends a DataStar execute script event.
 
-  conn - Plug.Conn
-  script - String
-  opts - Optional Datastar execute script event options
+  Injects a `<script>` tag into `<body>` via a `datastar-patch-elements` event.
+  The script is auto-removed from the DOM after execution by default.
 
-  returns {:ok, Plug.Conn} | {:error, :closed | :enotconn}
+  - `conn` - `Plug.Conn`
+  - `script` - JavaScript string to execute
+  - `opts` - keyword options: `:auto_remove` (default `true`), `:attributes`, `:event_id`, `:retry_duration`
+
+  Returns `{:ok, Plug.Conn.t()}` or `{:error, :closed | :enotconn}`.
 
   ## Examples
-    DataStarSSE.execute_script(
-      conn,
-      "console.log('Hello World!')",
-      auto_remove: true,
-      event_id: 123
-    )
+
+  ```elixir
+  {:ok, conn} = DataStarSSE.execute_script(conn, "console.log('Hello World!')", event_id: 123)
+  ```
   """
   @spec execute_script(Plug.Conn.t(), String.t(), keyword()) ::
           {:ok, Plug.Conn.t()} | {:error, :closed | :enotconn}
@@ -177,15 +179,22 @@ defmodule DataStarSSE do
   end
 
   @doc """
-  Parses DataStar signals from a Plug.Conn as JSON.
+  Parses DataStar signals from a `Plug.Conn` as JSON.
 
   Handles both GET requests (signals in `?datastar=` query param) and
-  POST requests (signals in request body).
+  POST requests (signals in request body). Works with both parsed and
+  unparsed connections.
 
-  returns {:ok, conn, signals} | {:error, reason}
+  Returns `{:ok, conn, signals}` or `{:error, reason}`.
 
   ## Examples
-    DataStarSSE.read_signals(conn)
+
+  ```elixir
+  case DataStarSSE.read_signals(conn) do
+    {:ok, conn, signals} -> # use signals map
+    {:error, reason} -> # handle error
+  end
+  ```
   """
   @spec read_signals(Plug.Conn.t()) :: {:ok, Plug.Conn.t(), map()} | {:error, term()}
   def read_signals(conn) do
