@@ -19,5 +19,13 @@ erl_crash.dump
 # Ignore package tarball (built via "mix hex.build").
 datastar-*.tar
 
+# Dialyzer persistent lookup table files.
+/priv/plts/
+*.plt
+*.plt.hash
+
 # Temporary files, for example, from tests.
 /tmp/
+
+/.agents/
+/.claude/

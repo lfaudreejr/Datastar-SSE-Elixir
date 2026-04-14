@@ -23,69 +23,81 @@ defmodule Router do
   plug(:dispatch)
 
   post "/test" do
-    conn = DataStarSSE.ServerSentEventGenerator.new_sse(conn)
-    {:ok, conn, signals} = DataStarSSE.ServerSentEventGenerator.read_signals(conn)
+    conn = DataStarSSE.new_sse(conn)
+    {:ok, conn, signals} = DataStarSSE.read_signals(conn)
 
     Enum.reduce(signals["events"], conn, fn event, conn ->
-      case event["type"] do
-        "executeScript" ->
-          DataStarSSE.ServerSentEventGenerator.execute_script(conn, event["script"],
-            event_id: event["eventId"],
-            retry_duration: event["retryDuration"],
-            attributes: [type: "text/javascript", blocking: "false"]
-          )
+      result =
+        case event["type"] do
+          "executeScript" ->
+            DataStarSSE.execute_script(conn, event["script"],
+              event_id: event["eventId"],
+              retry_duration: event["retryDuration"],
+              attributes: [type: "text/javascript", blocking: "false"]
+            )
 
-        "patchElements" ->
-          DataStarSSE.ServerSentEventGenerator.patch_elements(conn, event["elements"],
-            event_id: event["eventId"],
-            retry_duration: event["retryDuration"],
-            selector: event["selector"],
-            mode: event["mode"],
-            use_view_transition: event["useViewTransition"]
-          )
+          "patchElements" ->
+            DataStarSSE.patch_elements(conn, event["elements"],
+              event_id: event["eventId"],
+              retry_duration: event["retryDuration"],
+              selector: event["selector"],
+              mode: event["mode"],
+              use_view_transition: event["useViewTransition"]
+            )
 
-        "patchSignals" ->
-          DataStarSSE.ServerSentEventGenerator.patch_signals(
-            conn,
-            event["signals"] || event["signals-raw"],
-            event_id: event["eventId"],
-            retry_duration: event["retryDuration"],
-            only_if_missing: event["onlyIfMissing"]
-          )
+          "patchSignals" ->
+            DataStarSSE.patch_signals(
+              conn,
+              event["signals"] || event["signals-raw"],
+              event_id: event["eventId"],
+              retry_duration: event["retryDuration"],
+              only_if_missing: event["onlyIfMissing"]
+            )
+        end
+
+      case result do
+        {:ok, conn} -> conn
+        {:error, _} -> conn
       end
     end)
   end
 
   get "/test" do
-    conn = DataStarSSE.ServerSentEventGenerator.new_sse(conn)
-    {:ok, conn, signals} = DataStarSSE.ServerSentEventGenerator.read_signals(conn)
+    conn = DataStarSSE.new_sse(conn)
+    {:ok, conn, signals} = DataStarSSE.read_signals(conn)
 
     Enum.reduce(signals["events"], conn, fn event, conn ->
-      case event["type"] do
-        "executeScript" ->
-          DataStarSSE.ServerSentEventGenerator.execute_script(conn, event["script"],
-            event_id: event["eventId"],
-            retry_duration: event["retryDuration"],
-            attributes: [type: "text/javascript", blocking: "false"]
-          )
+      result =
+        case event["type"] do
+          "executeScript" ->
+            DataStarSSE.execute_script(conn, event["script"],
+              event_id: event["eventId"],
+              retry_duration: event["retryDuration"],
+              attributes: [type: "text/javascript", blocking: "false"]
+            )
 
-        "patchElements" ->
-          DataStarSSE.ServerSentEventGenerator.patch_elements(conn, event["elements"],
-            event_id: event["eventId"],
-            retry_duration: event["retryDuration"],
-            selector: event["selector"],
-            mode: event["mode"],
-            use_view_transition: event["useViewTransition"]
-          )
+          "patchElements" ->
+            DataStarSSE.patch_elements(conn, event["elements"],
+              event_id: event["eventId"],
+              retry_duration: event["retryDuration"],
+              selector: event["selector"],
+              mode: event["mode"],
+              use_view_transition: event["useViewTransition"]
+            )
 
-        "patchSignals" ->
-          DataStarSSE.ServerSentEventGenerator.patch_signals(
-            conn,
-            event["signals"] || event["signals-raw"],
-            event_id: event["eventId"],
-            retry_duration: event["retryDuration"],
-            only_if_missing: event["onlyIfMissing"]
-          )
+          "patchSignals" ->
+            DataStarSSE.patch_signals(
+              conn,
+              event["signals"] || event["signals-raw"],
+              event_id: event["eventId"],
+              retry_duration: event["retryDuration"],
+              only_if_missing: event["onlyIfMissing"]
+            )
+        end
+
+      case result do
+        {:ok, conn} -> conn
+        {:error, _} -> conn
       end
     end)
   end

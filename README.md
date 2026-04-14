@@ -4,13 +4,10 @@ Elixir SSE Helpers for [DataStar](https://data-star.dev) - A framework for build
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `datastar_sse` to your list of dependencies in `mix.exs`:
-
 ```elixir
 def deps do
   [
-    {:datastar_sse, "~> 0.1.0"}
+    {:datastar_sse, "~> 1.0"}
   ]
 end
 ```
@@ -18,33 +15,51 @@ end
 ## Quick Start
 
 ```elixir
-  def get("/sse") do
+def sse(conn, _params) do
+  {:ok, json} = Jason.encode(%{"response" => "", "answer" => "bread"})
+  conn = DataStarSSE.new_sse(conn)
+
+  with {:ok, conn} <- DataStarSSE.patch_elements(conn, ~s(<div id="question">What do you put in a toaster?</div>)),
+       {:ok, conn} <- DataStarSSE.patch_signals(conn, json),
+       {:ok, conn} <- DataStarSSE.execute_script(conn, "console.log(123)") do
     conn
-      |> DataStarSSE.ServerSentEventGenerator.new_sse()
-      |> DataStarSSE.ServerSentEventGenerator.patch_elements(
-          """
-          <div id="question">What do you put in a toaster?</div>
-          """,
-        )
-      |> DataStarSSE.ServerSentEventGenerator.patch_signals(
-          %{"response" => "", "answer" => "bread"},
-        )
-      |> DataStarSSE.ServerSentEventGenerator.execute_script("console.log(123)")
   end
+end
 ```
 
-If using Phoenix, add to config.exs
+`patch_signals/3` accepts a pre-encoded JSON string — encode with `Jason.encode/1` before calling.
+
+## Reading Signals
+
+DataStar sends signals as part of the request. Use `read_signals/1` to parse them:
+
 ```elixir
-  # Accept event-stream requests
-  config :mime, :types, %{
-    "text/event-stream" => ["sse"]
-  }
+def sse(conn, _params) do
+  conn = SSE.new_sse(conn)
+
+  with {:ok, conn, signals} <- SSE.read_signals(conn),
+       {:ok, json} <- Jason.encode(%{"echo" => signals["message"]}),
+       {:ok, conn} <- SSE.patch_signals(conn, json) do
+    conn
+  end
+end
 ```
-and to router.ex
+
+## Phoenix Setup
+
+Add to `config.exs`:
 ```elixir
-  plug :accepts, ["sse"]
+config :mime, :types, %{
+  "text/event-stream" => ["sse"]
+}
 ```
+
+Add to `router.ex`:
+```elixir
+plug :accepts, ["sse"]
+```
+
+## Documentation
 
 Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/datastar>.
+and published on [HexDocs](https://hexdocs.pm/datastar_sse).

@@ -4,7 +4,7 @@ defmodule DataStarSSE.MixProject do
   def project do
     [
       app: :datastar_sse,
-      version: "0.1.0",
+      version: "1.0.0",
       elixir: "~> 1.18",
       start_permanent: Mix.env() == :prod,
       package: package(),
@@ -30,7 +30,9 @@ defmodule DataStarSSE.MixProject do
   defp deps do
     [
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
-      {:plug, "~>1.18.1"},
+      {:dialyxir, "~> 1.4", only: :dev, runtime: false},
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
+      {:plug, "~> 1.18"},
       {:jason, "~> 1.4"},
       {:bandit, "~> 1.0", only: :dev}
       # {:dep_from_hexpm, "~> 0.3.0"},
