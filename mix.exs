@@ -44,6 +44,7 @@ defmodule DataStarSSE.MixProject do
     [
       licenses: ["MIT"],
       links: %{"GitHub" => "https://github.com/lfaudreejr/Datastar-SSE-Elixir"},
+      files: ~w(lib LICENSE mix.exs README.md .formatter.exs),
       exclude_patterns: ["lib/scripts"]
     ]
   end
